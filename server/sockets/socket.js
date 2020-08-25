@@ -29,16 +29,22 @@ io.on("connection", (client) => {
       .to(data.sala)
       .emit("listarPersona", usuarios.getPersonasPorSala(data.sala));
 
+    client.broadcast
+      .to(data.sala)
+      .emit("crearMensaje", crearMensaje("Admin", `${data.nombre} se unio`));
+
     callback(usuarios.getPersonasPorSala(data.sala)); //con eso retornaremso todoas las perosnas que se encuentren en la sala
   });
 
   //necsitamos especificar al servidor cuando le esten mandando un emnsaje el cliente
 
-  client.on("crearMensaje", (data) => {
+  client.on("crearMensaje", (data, callback) => {
     let persona = usuarios.getPersona(client.id); //obtnemos la informaciond e la persona que envia el mensaje
     let mensaje = crearMensaje(persona.nombre, data.mensaje); //obtenemos el mensaje
 
     client.broadcast.to(persona.sala).emit("crearMensaje", mensaje); // enviamos el emsaje a todos los clientes
+
+    callback(mensaje); // cuando ya notifique a todos regresare el mensaje
   });
   //evento de la desconexion
 
